@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="utf-8">
+  <title>ysaco</title>
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="//fonts.googleapis.com/css?family=Raleway:400,300,600" rel="stylesheet" type="text/css">
+
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/skeleton.css">
+  <link rel="stylesheet" href="css/style.css">
+
+  <link rel="icon" type="image/png" href="images/favicon.png">
+
+
+  <script src="vendor/jquery/jquery-3.2.1.min.js"></script>
+  <script src="js/app.js"></script>
+
+</head>
+<body>
+
+  <div class="container">
+    <div class="row">
+      <div class="one-half column" style="margin-top: 25%">
+        <h4>YSACO</h4>
+        <p>
+          This is a crowd sourced collection of audio samples from youtube videos. You can submit one yourself or listen to the other ones.
+        </p>
+      </div>
+    </div>
+
+    <div class="row">
+
+      <div class="nine columns">
+        <h6 class="docs-header">Already submitted</h6>
+      </div>
+      <div class="three columns">
+        <button class="add-btn button-primary" onclick="openModal()">Add new</button>
+      </div>
+
+      <table class="u-full-width">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Duration</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="list-body">
+        
+      </tbody>
+      </table>
+
+    </div>
+  </div>
+
+
+  <div class="modal-overlay" id="modal-overlay" style="display:none"></div>
+
+  <div class="modal container" style="display:none">
+    <div class="modal-container">
+      
+      <button class="close" onclick="closeModal()">X</button>
+
+      <div class="row">
+        <h6 class="docs-header">Already submitted</h6>
+      </div>
+
+      <form>
+        <label for="name">Submission description</label>
+        <input class="u-full-width" type="text" placeholder="Some cool sample.." id="name"></textarea>
+        
+        <label for="url">Youtube URL</label>
+        <textarea class="u-full-width" placeholder="https://www.youtube.com/watch?v=..." id="url"></textarea>
+        
+        <div class="row">
+
+          <div class="six columns">
+            <label for="start">Start at:</label>
+            <input class="u-full-width" type="text" placeholder="e.g. 11:27" id="start">
+          </div>
+
+          <div class="six columns">
+            <label for="duration">Duration in seconds:</label>
+            <input class="u-full-width" type="text" placeholder="e.g. 3" id="duration">
+          </div>
+        </div>
+        
+        <button type="button" onclick="submitClick()" id="submit-btn">Submit</button>
+        <button type="button" class="button-primary" onclick="prelistenClick()" id="prel-btn">Pre-listen</button>
+        
+      </form>
+
+    </div>
+  </div>
+
+  <div class="yt-container">
+    <iframe id="yt-video" width="420" height="315" frameborder="0" onload="clearLoaders()"></iframe>
+  </div>
+
+</body>
+</html>
