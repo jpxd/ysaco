@@ -43,7 +43,7 @@ function getValue(id, validationRegex) {
 function getValues() {
 	var data = {};
 	data.name = getValue('#name', /[a-zA-Z0-9 \\.,\\?\\!]+/);
-	data.url = getValue('#url', /youtube\.com\/watch\?v=([a-zA-Z0-9\-]+)/);
+	data.url = getValue('#url', /youtube\.com\/watch\?v=([a-zA-Z0-9\-]+)|youtu.be\/([a-zA-Z0-9\-]+)/);
 	data.start = getValue('#start', /[0-9]+:[0-9]+/);
 	data.duration = getValue('#duration', /[0-9]+/);
 
@@ -51,7 +51,7 @@ function getValues() {
 		return null;
 	}
 
-	data.id = data.url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9\-]+)/)[1];
+	data.id = data.url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9\-]+)|youtu.be\/([a-zA-Z0-9\-]+)/)[1];
 
 	var startParts = data.start.split(':');
 	data.start = parseInt(startParts[0])*60 + parseInt(startParts[1]);
