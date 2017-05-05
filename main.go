@@ -8,6 +8,7 @@ func main() {
 	e := echo.New()
 	e.GET("/entries", getEntries)
 	e.POST("/submit", submitEntry)
+	e.POST("/delete", deleteEntry)
 	e.Static("/", "static")
 	e.Debug = true
 	e.Start(":6004")

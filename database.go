@@ -24,9 +24,5 @@ func saveSample(sample SampleEntry) {
 }
 
 func deleteSample(id int64) {
-	var sample *SampleEntry
-	db.Find("ID", id, sample)
-	if sample != nil {
-		db.DeleteStruct(sample)
-	}
+	db.Delete("SampleEntry", id)
 }

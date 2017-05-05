@@ -49,3 +49,16 @@ func submitEntry(c echo.Context) error {
 func getEntries(c echo.Context) error {
 	return c.JSON(http.StatusOK, getSamples())
 }
+
+func deleteEntry(c echo.Context) error {
+	id := c.FormValue("id")
+
+	if !numberValidationRegex.MatchString(id) {
+		return c.NoContent(http.StatusBadRequest)
+	}
+
+	idInt, _ := strconv.ParseInt(id, 10, 64)
+	deleteSample(idInt)
+
+	return c.NoContent(http.StatusOK)
+}

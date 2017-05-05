@@ -31,52 +31,30 @@ function clearLoaders() {
 	}, 1000);
 }
 
+function getValue(id, validationRegex) {
+	var el = $(id);
+	if (el == null) return null;
+	el.removeClass('invalid');
+	if (el.val().match(validationRegex)) return el.val();
+	el.addClass('invalid');
+	return null;
+}
+
 function getValues() {
-	$('#name').removeClass('invalid');
-	$('#url').removeClass('invalid');
-	$('#start').removeClass('invalid');
-	$('#duration').removeClass('invalid');
-
 	var data = {};
-	data.name = $('#name').val();
-	data.url = $('#url').val();
-	data.start = $('#start').val();
-	data.duration = $('#duration').val();
+	data.name = getValue('#name', /[a-zA-Z0-9 \\.,\\?\\!]+/);
+	data.url = getValue('#url', /youtube\.com\/watch\?v=([a-zA-Z0-9]+)/);
+	data.start = getValue('#start', /[0-9]+:[0-9]+/);
+	data.duration = getValue('#duration', /[0-9]+/);
 
-	if (data.name == null || data.name.length < 5) {
-		$('#name').addClass('invalid');
+	if (data.name == null || data.url == null || data.start == null || data.duration == null) {
 		return null;
 	}
 
-	if (data.url == null || data.url.length < 5) {
-		$('#url').addClass('invalid');
-		return null;
-	}
-
-	var urlRes = data.url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9]+)/);
-	if (urlRes == null || urlRes.length < 2 || urlRes[1].length < 3) {
-		$('#url').addClass('invalid');
-		return null;
-	}
-	data.id = urlRes[1];
-
-	if (data.start == null || data.start.length < 1 || data.start.indexOf(':') < 0) {
-		$('#start').addClass('invalid');
-		return null;
-	}
+	data.id = data.url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9]+)/)[1];
 
 	var startParts = data.start.split(':');
-	if (startParts.length != 2 || isNaN(startParts[0]) || isNaN(startParts[1])) {
-		$('#start').addClass('invalid');
-		return null;
-	}
-
 	data.start = parseInt(startParts[0])*60 + parseInt(startParts[1]);
-
-	if (data.duration == null || data.duration.length < 1 || isNaN(data.duration)) {
-		$('#duration').addClass('invalid');
-		return null;
-	}
 
 	data.duration = parseInt(data.duration);
 
@@ -98,7 +76,7 @@ function submitClick() {
 
 	$.post('submit', data).done(function() {
 		window.location.reload();
-	}).error(function(){
+	}).fail(function(){
 		alert("Could not submit this entry.");
 		$('.close').show();
 		$('.loader').remove();
@@ -111,15 +89,35 @@ function fillList() {
 			$('#list-body').append(`
 				<tr>
 					<td>${x.Name}</td>
+					<td>${Math.floor(x.SecondsStart/60)}:${x.SecondsStart % 60}</td>
 					<td>${x.Duration}</td>
-					<td><a onclick="playSample('${x.YoutubeID}', ${x.SecondsStart}, ${x.Duration}, this)">Listen</a></td>
+					<td>
+						<a onclick="playSample('${x.YoutubeID}', ${x.SecondsStart}, ${x.Duration}, this)">Listen</a>, 
+						<a onclick="removeEntry('${x.ID}', this)">Remove</a>
+					</td>
 				</tr>
 			`);
 		}
 	});
 }
 
-$(function() {
+function removeEntry(id, sender) {
+	if (!confirm('Are you sure you want to delete this thing?')) return;
+	if (!confirm('Are you REALLY sure you want to delete this thing???')) return;
+	if (sender != null) {
+		$(sender).addClass('loader');
+	}
+	$.post('delete', { 'id': id	}).done(function() {
+		window.location.reload();
+	}).fail(function(){
+		alert("Could not delete this entry.");
+		clearLoaders();
+	});
+}
+
+function initPage() {
 	fillList();
 	clearLoaders();
-});
+}
+
+$(initPage);
