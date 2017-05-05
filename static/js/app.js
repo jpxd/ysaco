@@ -44,7 +44,7 @@ function getValues() {
 	var data = {};
 	data.name = getValue('#name', /[a-zA-Z0-9 \\.,\\?\\!]+/);
 	data.url = getValue('#url', /youtube\.com\/watch\?v=([a-zA-Z0-9\-]+)|youtu.be\/([a-zA-Z0-9\-]+)/);
-	data.start = getValue('#start', /[0-9]+:[0-9]+/);
+	data.start = getValue('#start', /^([0-9]+:[0-9]+:|[0-9]+:|)[0-9]+$/);
 	data.duration = getValue('#duration', /[0-9]+/);
 
 	if (data.name == null || data.url == null || data.start == null || data.duration == null) {
@@ -54,7 +54,11 @@ function getValues() {
 	data.id = data.url.match(/youtube\.com\/watch\?v=([a-zA-Z0-9\-]+)|youtu.be\/([a-zA-Z0-9\-]+)/)[1];
 
 	var startParts = data.start.split(':');
-	data.start = parseInt(startParts[0])*60 + parseInt(startParts[1]);
+	var startSeconds = 0;
+	if (startParts.length > 0) startSeconds += parseInt(startParts.pop());
+	if (startParts.length > 0) startSeconds += parseInt(startParts.pop()) * 60;
+	if (startParts.length > 0) startSeconds += parseInt(startParts.pop()) * 60 * 60;
+	data.start = startSeconds;
 
 	data.duration = parseInt(data.duration);
 
@@ -89,8 +93,8 @@ function fillList() {
 			$('#list-body').append(`
 				<tr>
 					<td>${x.Name}</td>
-					<td>${Math.floor(x.SecondsStart/60)}:${x.SecondsStart % 60}</td>
-					<td>${x.Duration}</td>
+					<td>${Math.floor(x.SecondsStart/3600)}:${Math.floor((x.SecondsStart%3600)/60)}:${x.SecondsStart % 60}</td>
+					<td>${x.Duration}s</td>
 					<td>
 						<a onclick="playSample('${x.YoutubeID}', ${x.SecondsStart}, ${x.Duration}, this)">Listen</a>, 
 						<a onclick="removeEntry('${x.ID}', this)">Remove</a>
