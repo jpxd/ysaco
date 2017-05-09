@@ -1,3 +1,11 @@
+Number.prototype.pad = function(size) {
+	var s = String(this);
+	while (s.length < (size || 2)) {
+		s = "0" + s;
+	}
+	return s;
+}
+
 function playSample(id, start, duration, sender) {
 	if (sender != null) {
 		$(sender).addClass('loader');
@@ -93,7 +101,7 @@ function fillList() {
 			$('#list-body').append(`
 				<tr>
 					<td>${x.Name}</td>
-					<td>${Math.floor(x.SecondsStart/3600)}:${Math.floor((x.SecondsStart%3600)/60)}:${x.SecondsStart % 60}</td>
+					<td>${Math.floor(x.SecondsStart/3600).pad(2)}:${Math.floor((x.SecondsStart%3600)/60).pad(2)}:${(x.SecondsStart % 60).pad(2)}</td>
 					<td>${x.Duration}s</td>
 					<td>
 						<a onclick="playSample('${x.YoutubeID}', ${x.SecondsStart}, ${x.Duration}, this)">Listen</a>, 
