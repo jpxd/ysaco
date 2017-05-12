@@ -19,8 +19,8 @@ func getSamples() []SampleEntry {
 	return samples
 }
 
-func saveSample(sample SampleEntry) {
-	db.Save(&sample)
+func saveSample(sample *SampleEntry) {
+	db.Save(sample)
 }
 
 func deleteSample(id int64) {

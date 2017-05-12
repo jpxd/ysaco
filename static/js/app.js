@@ -6,6 +6,10 @@ Number.prototype.pad = function(size) {
 	return s;
 }
 
+function getCookie(name) {
+    return (name = new RegExp('(?:^|;\\s*)' + ('' + name).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)').exec(document.cookie)) && name[1];
+}
+
 function playSample(id, start, duration, sender) {
 	if (sender != null) {
 		$(sender).addClass('loader');
@@ -96,8 +100,13 @@ function submitClick() {
 }
 
 function fillList() {
+	var userCookie = getCookie('user');
+	var user = userCookie ? JSON.parse(atob(userCookie)) : null;
 	$.getJSON('entries', function(data){
 		for(x of data) {
+			var deletable = user && (user.IsAdmin || user.OwnerOf.indexOf(x.ID) >= 0);
+			var secondLink = `<a href="//www.youtube.com/watch/${x.ID}?start=${x.Start}&end=${x.Start + x.Duration}&rel=0&autoplay=1">Open</a>`;
+			if (deletable) secondLink = `<a onclick="removeEntry('${x.ID}', this)">Remove</a>`;
 			$('#list-body').append(`
 				<tr>
 					<td>${x.Name}</td>
@@ -105,7 +114,7 @@ function fillList() {
 					<td>${x.Duration}s</td>
 					<td>
 						<a onclick="playSample('${x.YoutubeID}', ${x.SecondsStart}, ${x.Duration}, this)">Listen</a>, 
-						<a onclick="removeEntry('${x.ID}', this)">Remove</a>
+						${secondLink}
 					</td>
 				</tr>
 			`);

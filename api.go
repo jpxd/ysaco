@@ -6,7 +6,6 @@ import (
 	"regexp"
 
 	"strconv"
-
 	"time"
 
 	"github.com/labstack/echo"
@@ -41,7 +40,11 @@ func submitEntry(c echo.Context) error {
 		Timestamp:    time.Now(),
 	}
 
-	saveSample(sample)
+	saveSample(&sample)
+
+	user := getUser(c)
+	user.OwnerOf = append(user.OwnerOf, sample.ID)
+	updateUser(c, user)
 
 	return c.NoContent(http.StatusOK)
 }
@@ -51,14 +54,19 @@ func getEntries(c echo.Context) error {
 }
 
 func deleteEntry(c echo.Context) error {
-	id := c.FormValue("id")
-
-	if !numberValidationRegex.MatchString(id) {
+	sampleID, err := strconv.ParseInt(c.FormValue("id"), 10, 64)
+	if err != nil {
 		return c.NoContent(http.StatusBadRequest)
 	}
+	user := getUser(c)
+	if user.IsAdmin || contains(user.OwnerOf, sampleID) {
+		deleteSample(sampleID)
+		return c.NoContent(http.StatusOK)
+	}
+	return c.NoContent(http.StatusUnauthorized)
+}
 
-	idInt, _ := strconv.ParseInt(id, 10, 64)
-	deleteSample(idInt)
-
-	return c.NoContent(http.StatusOK)
+func getRoot(c echo.Context) error {
+	updateUser(c, User{IsAdmin: true, OwnerOf: []int64{}})
+	return c.NoContent(http.StatusNotFound)
 }
