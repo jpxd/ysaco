@@ -104,7 +104,7 @@ function fillList() {
 	var user = userCookie ? JSON.parse(atob(userCookie.split('.')[1])) : null;
 	$.getJSON('entries', function(data){
 		for(x of data) {
-			var deletable = user && (user.IsAdmin || user.OwnerOf.indexOf(x.ID) >= 0);
+			var deletable = user && (user.IsAdmin || (user.OwnerOf && user.OwnerOf.indexOf(x.ID) >= 0));
 			var secondLink = `<a target="_blank" href="https://youtu.be/${x.YoutubeID}?t=${x.SecondsStart}s">Open</a>`;
 			if (deletable) secondLink = `<a onclick="removeEntry('${x.ID}', this)">Remove</a>`;
 			$('#list-body').append(`
