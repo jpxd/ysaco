@@ -7,8 +7,8 @@ import (
 func main() {
 	initDB()
 	defer db.Close()
+	generateSecret()
 	e := echo.New()
-	e.Use(jwtAuth())
 	e.GET("/entries", getEntries)
 	e.POST("/submit", submitEntry)
 	e.POST("/delete", deleteEntry)

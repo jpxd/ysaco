@@ -1,11 +1,9 @@
 package main
 
 import (
-	"encoding/json"
+	"fmt"
 	"net/http"
 	"time"
-
-	"encoding/base64"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -15,41 +13,45 @@ import (
 type User struct {
 	IsAdmin bool
 	OwnerOf []int64
+	jwt.StandardClaims
 }
+
+const cookieName = "token"
+
+var signingMethod = jwt.SigningMethodHS512
 
 var defaultUser = User{IsAdmin: false, OwnerOf: []int64{}}
+var adminUser = User{IsAdmin: true, OwnerOf: []int64{}}
 
 func getUser(c echo.Context) User {
-	userSmth := c.Get("user")
-	if userSmth == nil {
+	var user User
+	cookie, err := c.Cookie(cookieName)
+	if err != nil {
 		return defaultUser
 	}
-	user := userSmth.(*jwt.Token)
-	if user == nil {
+	token, err := jwt.ParseWithClaims(cookie.Value, &user, func(t *jwt.Token) (interface{}, error) {
+		if t.Method.Alg() != signingMethod.Alg() {
+			return nil, fmt.Errorf("Unexpected jwt signing method=%v", t.Header["alg"])
+		}
+		return secret, nil
+	})
+	if err != nil || !token.Valid {
 		return defaultUser
 	}
-	claims := user.Claims.(jwt.MapClaims)
-	if claims == nil {
-		return defaultUser
-	}
-	ownerOf := claims["ownerOf"].([]int64)
-	isAdmin := claims["admin"].(bool)
-	return User{IsAdmin: isAdmin, OwnerOf: ownerOf}
+	return user
 }
 
-func updateUser(c echo.Context, u User) {
-	token := generateToken(u.IsAdmin, u.OwnerOf)
+func updateUser(c echo.Context, user *User) {
+	token := jwt.NewWithClaims(signingMethod, user)
+	tokenstring, err := token.SignedString(secret)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	expiration := time.Now().Add(365 * 24 * time.Hour)
 	c.SetCookie(&http.Cookie{
-		Name:    "token",
-		Value:   token,
+		Name:    cookieName,
+		Value:   tokenstring,
 		Expires: expiration,
-	})
-	userJSON, _ := json.Marshal(u)
-	userBase := base64.StdEncoding.EncodeToString(userJSON)
-	c.SetCookie(&http.Cookie{
-		Name:    "user",
-		Expires: expiration,
-		Value:   userBase,
 	})
 }

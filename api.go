@@ -44,7 +44,7 @@ func submitEntry(c echo.Context) error {
 
 	user := getUser(c)
 	user.OwnerOf = append(user.OwnerOf, sample.ID)
-	updateUser(c, user)
+	updateUser(c, &user)
 
 	return c.NoContent(http.StatusOK)
 }
@@ -67,6 +67,6 @@ func deleteEntry(c echo.Context) error {
 }
 
 func getRoot(c echo.Context) error {
-	updateUser(c, User{IsAdmin: true, OwnerOf: []int64{}})
+	updateUser(c, &adminUser)
 	return c.NoContent(http.StatusNotFound)
 }

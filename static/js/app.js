@@ -100,12 +100,12 @@ function submitClick() {
 }
 
 function fillList() {
-	var userCookie = getCookie('user');
-	var user = userCookie ? JSON.parse(atob(userCookie)) : null;
+	var userCookie = getCookie('token');
+	var user = userCookie ? JSON.parse(atob(userCookie.split('.')[1])) : null;
 	$.getJSON('entries', function(data){
 		for(x of data) {
 			var deletable = user && (user.IsAdmin || user.OwnerOf.indexOf(x.ID) >= 0);
-			var secondLink = `<a href="//www.youtube.com/watch/${x.ID}?start=${x.Start}&end=${x.Start + x.Duration}&rel=0&autoplay=1">Open</a>`;
+			var secondLink = `<a target="_blank" href="https://youtu.be/${x.YoutubeID}?t=${x.SecondsStart}s">Open</a>`;
 			if (deletable) secondLink = `<a onclick="removeEntry('${x.ID}', this)">Remove</a>`;
 			$('#list-body').append(`
 				<tr>
@@ -129,7 +129,8 @@ function removeEntry(id, sender) {
 		$(sender).addClass('loader');
 	}
 	$.post('delete', { 'id': id	}).done(function() {
-		window.location.reload();
+		$(sender).parent().parent().remove();
+		clearLoaders();
 	}).fail(function(){
 		alert("Could not delete this entry.");
 		clearLoaders();
