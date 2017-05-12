@@ -1,6 +1,6 @@
 # ysaco
 
-**y**outube **sa**ample **co**llection
+**y**outube **sa**mple **co**llection
 
 ## what is this about
 
